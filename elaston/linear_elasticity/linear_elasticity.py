@@ -3,9 +3,9 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import numpy as np
-from pyiron_continuum.elasticity.green import Anisotropic, Isotropic, Green
-from pyiron_continuum.elasticity.eshelby import Eshelby
-from pyiron_continuum.elasticity import tools
+from elaston.linear_elasticity.green import Anisotropic, Isotropic, Green
+from elaston.linear_elasticity.eshelby import Eshelby
+from elaston.linear_elasticity import tools
 
 __author__ = "Sam Waseda"
 __copyright__ = (
