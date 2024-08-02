@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
-from pyiron_continuum.elasticity.eshelby import Eshelby
-from pyiron_continuum.elasticity import tools
+from elaston.linear_elasticity.eshelby import Eshelby
+from elaston.linear_elasticity import tools
 
 
 def create_random_HL(b=None):

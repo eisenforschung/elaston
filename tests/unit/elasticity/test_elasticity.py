@@ -1,7 +1,7 @@
 import numpy as np
 import unittest
-from pyiron_continuum.elasticity.linear_elasticity import LinearElasticity
-from pyiron_continuum.elasticity import tools
+from elaston.linear_elasticity.elasticity.linear_elasticity import LinearElasticity
+from elaston.linear_elasticity.elasticity import tools
 
 
 def create_random_C(isotropic=False):
