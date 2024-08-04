@@ -3,6 +3,7 @@
 # Distributed under the terms of "New BSD License", see the LICENSE file.
 
 import numpy as np
+from typing import Optional
 from elaston.linear_elasticity.green import Anisotropic, Isotropic, Green
 from elaston.linear_elasticity.eshelby import Eshelby
 from elaston.linear_elasticity import tools
@@ -116,13 +117,23 @@ class LinearElasticity:
 
     """
 
-    def __init__(self, elastic_tensor, orientation=None):
+    def __init__(
+        self, elastic_tensor: np.ndarray, orientation: Optional[np.ndarray] = None
+    ):
         """
         Args:
-
             elastic_tensor ((3,3,3,3)-, (6,6)- or (3,)-array): Elastic tensor (in C_ijkl notation,
                 Voigt notation or a 3-component array containing [C_11, C_12, C_44]).
+            orientation ((3,3)-array): Rotation matrix that defines the orientation of the system.
 
+        Here is a list of elastic constants of a few materials:
+
+        - Al: [70.4, 26.0, 26.0]
+        - Cu: [170.0, 121.0, 75.0]
+        - Fe: [211.0, 130.0, 82.0]
+        - Mo: [442.0, 142.0, 162.0]
+        - Ni: [248.0, 140.0, 76.0]
+        - W: [630.0, 161.0, 160.0]
         """
         self.elastic_tensor = elastic_tensor
         self._isotropy_tolerance = 1.0e-4
@@ -137,9 +148,7 @@ class LinearElasticity:
         Rotation matrix that defines the orientation of the system. If set, the elastic tensor
         will be rotated accordingly. For example a box with a dislocation should get:
 
-        ```
         >>> medium.orientation = np.array([[1, 1, 1], [1, 0, -1], [1, -2, 1]])
-        ```
 
         If a non-orthogonal orientation is set, the second vector is orthogonalized with the Gram
         Schmidt process. It is not necessary to specify the third axis as it is automatically
@@ -180,9 +189,7 @@ class LinearElasticity:
     def elastic_tensor(self, C):
         C = np.asarray(C)
         if C.shape != (6, 6) and C.shape != (3, 3, 3, 3) and C.shape != (3,):
-            raise ValueError(
-                "Elastic tensor must be a (6,6), (3,3,3,3) or (3,)  array"
-            )
+            raise ValueError("Elastic tensor must be a (6,6), (3,3,3,3) or (3,)  array")
         if C.shape == (3,):
             C = tools.coeff_to_voigt(C)
         if C.shape == (6, 6):
@@ -221,8 +228,8 @@ class LinearElasticity:
     @property
     def isotropy_tolerance(self):
         """
-        Maximum tolerance deviation from 1 for the Zener ratio to determine whether the medium
-        is isotropic or not.
+        Maximum tolerance deviation from 1 for the Zener ratio to determine
+        whether the medium is isotropic or not.
         """
         return self._isotropy_tolerance
 
@@ -271,14 +278,14 @@ class LinearElasticity:
 
     def get_greens_function(
         self,
-        positions,
-        derivative=0,
-        fourier=False,
-        n_mesh=100,
-        isotropic=False,
-        optimize=True,
-        check_unique=False,
-        save_memory=False,
+        positions: np.ndarray,
+        derivative: int = 0,
+        fourier: bool = False,
+        n_mesh: int = 100,
+        isotropic: bool = False,
+        optimize: bool = True,
+        check_unique: bool = False,
+        save_memory: bool = False,
     ):
         """
         Green's function of the equilibrium condition:
@@ -295,6 +302,9 @@ class LinearElasticity:
             isotropic (bool): Whether to use the isotropic or anisotropic elasticity. If the medium
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
+            check_unique (bool): Whether to check the unique positions
+            save_memory (bool): Whether to save memory by using a for loop
+                instead of `numpy.einsum`
 
         Returns:
             ((n,3,3)-array): Green's function values for the given positions
@@ -317,13 +327,13 @@ class LinearElasticity:
 
     def get_point_defect_displacement(
         self,
-        positions,
-        dipole_tensor,
-        n_mesh=100,
-        isotropic=False,
-        optimize=True,
-        check_unique=False,
-        save_memory=False,
+        positions: np.ndarray,
+        dipole_tensor: np.ndarray,
+        n_mesh: int = 100,
+        isotropic: bool = False,
+        optimize: bool = True,
+        check_unique: bool = False,
+        save_memory: bool = False,
     ):
         """
         Displacement field around a point defect
@@ -336,6 +346,9 @@ class LinearElasticity:
             isotropic (bool): Whether to use the isotropic or anisotropic elasticity. If the medium
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
+            check_unique (bool): Whether to check the unique positions
+            save_memory (bool): Whether to save memory by using a for loop
+                instead of `numpy.einsum`
 
         Returns:
             ((n,3)-array): Displacement field
@@ -356,13 +369,13 @@ class LinearElasticity:
 
     def get_point_defect_strain(
         self,
-        positions,
-        dipole_tensor,
-        n_mesh=100,
-        isotropic=False,
-        optimize=True,
-        check_unique=False,
-        save_memory=False,
+        positions: np.ndarray,
+        dipole_tensor: np.ndarray,
+        n_mesh: int = 100,
+        isotropic: bool = False,
+        optimize: bool = True,
+        check_unique: bool = False,
+        save_memory: bool = False,
     ):
         """
         Strain field around a point defect using the Green's function method
@@ -376,6 +389,8 @@ class LinearElasticity:
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
             check_unique (bool): Whether to check the unique positions
+            save_memory (bool): Whether to save memory by using a for loop
+                instead of `numpy.einsum`
 
         Returns:
             ((n,3,3)-array): Strain field
@@ -396,7 +411,12 @@ class LinearElasticity:
     get_point_defect_strain.__doc__ += point_defect_explanation
 
     def get_point_defect_stress(
-        self, positions, dipole_tensor, n_mesh=100, isotropic=False, optimize=True
+        self,
+        positions: np.ndarray,
+        dipole_tensor: np.ndarray,
+        n_mesh: int = 100,
+        isotropic: bool = False,
+        optimize: bool = True,
     ):
         """
         Stress field around a point defect using the Green's function method
@@ -425,7 +445,12 @@ class LinearElasticity:
     get_point_defect_stress.__doc__ += point_defect_explanation
 
     def get_point_defect_energy_density(
-        self, positions, dipole_tensor, n_mesh=100, isotropic=False, optimize=True
+        self,
+        positions: np.ndarray,
+        dipole_tensor: np.ndarray,
+        n_mesh: int = 100,
+        isotropic: bool = False,
+        optimize: bool = True,
     ):
         """
         Energy density field around a point defect using the Green's function method
@@ -453,7 +478,11 @@ class LinearElasticity:
 
     get_point_defect_energy_density.__doc__ += point_defect_explanation
 
-    def get_dislocation_displacement(self, positions, burgers_vector):
+    def get_dislocation_displacement(
+        self,
+        positions: np.ndarray,
+        burgers_vector: np.ndarray,
+    ):
         """
         Displacement field around a dislocation according to anisotropic elasticity theory
         described by [Eshelby](https://doi.org/10.1016/0001-6160(53)90099-6).
@@ -469,7 +498,11 @@ class LinearElasticity:
         eshelby = Eshelby(self.elastic_tensor, burgers_vector)
         return eshelby.get_displacement(positions)
 
-    def get_dislocation_strain(self, positions, burgers_vector):
+    def get_dislocation_strain(
+        self,
+        positions: np.ndarray,
+        burgers_vector: np.ndarray,
+    ):
         """
         Strain field around a dislocation according to anisotropic elasticity theory
         described by [Eshelby](https://doi.org/10.1016/0001-6160(53)90099-6).
@@ -485,7 +518,11 @@ class LinearElasticity:
         eshelby = Eshelby(self.elastic_tensor, burgers_vector)
         return eshelby.get_strain(positions)
 
-    def get_dislocation_stress(self, positions, burgers_vector):
+    def get_dislocation_stress(
+        self,
+        positions: np.ndarray,
+        burgers_vector: np.ndarray,
+    ):
         """
         Stress field around a dislocation according to anisotropic elasticity theory
         described by [Eshelby](https://doi.org/10.1016/0001-6160(53)90099-6).
@@ -501,7 +538,11 @@ class LinearElasticity:
         strain = self.get_dislocation_strain(positions, burgers_vector)
         return np.einsum("ijkl,...kl->...ij", self.elastic_tensor, strain)
 
-    def get_dislocation_energy_density(self, positions, burgers_vector):
+    def get_dislocation_energy_density(
+        self,
+        positions: np.ndarray,
+        burgers_vector: np.ndarray,
+    ):
         """
         Energy density field around a dislocation (product of stress and strain, cf. corresponding
         methods)
@@ -517,7 +558,13 @@ class LinearElasticity:
         strain = self.get_dislocation_strain(positions, burgers_vector)
         return np.einsum("ijkl,...kl,...ij->...", self.elastic_tensor, strain, strain)
 
-    def get_dislocation_energy(self, burgers_vector, r_min, r_max, mesh=100):
+    def get_dislocation_energy(
+        self,
+        burgers_vector: np.ndarray,
+        r_min: float,
+        r_max: float,
+        mesh: int = 100,
+    ):
         """
         Energy per unit length along the dislocation line.
 
@@ -561,7 +608,11 @@ class LinearElasticity:
         )
 
     @staticmethod
-    def get_dislocation_force(stress, glide_plane, burgers_vector):
+    def get_dislocation_force(
+        stress: np.ndarray,
+        glide_plane: np.ndarray,
+        burgers_vector: np.ndarray,
+    ):
         """
         Force per unit length along the dislocation line.
 
