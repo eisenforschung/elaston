@@ -63,6 +63,18 @@ job.calc_minimize()
 job.run()
 dipole_tensor = -job.structure.get_volume()*job['output/generic/pressures'][-1]
 ```
+
+Instead of working with atomistic calculations, the dipole tensor can be calculated by the
+lambda tensor, which is defined as:
+
+.. math:
+    \\lambda_{ij} = \\frac{1]{V} \\frac{\\partial \\varepsilon_{ij}}{\\partial c}
+
+where :math:`c` is the concentration of the defect, :math:`V` is the volume
+and :math:`\\varepsilon` is the strain field. Then the dipole tensor is given by:
+
+.. math:
+    P_{ij} = VC_{ijkl}\\lambda_{kl}
 """
 
 
