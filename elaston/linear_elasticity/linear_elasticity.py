@@ -20,16 +20,6 @@ __status__ = "development"
 __date__ = "Aug 21, 2021"
 
 
-def value_or_none(func):
-    def f(self):
-        if self.elastic_tensor is None:
-            return None
-        else:
-            return func(self)
-
-    return f
-
-
 point_defect_explanation = """
 According to the definition of the Green's function (cf. docstring of `get_greens_function`):
 
@@ -197,7 +187,6 @@ class LinearElasticity:
         self._elastic_tensor = C
 
     @property
-    @value_or_none
     def elastic_tensor_voigt(self):
         """
         Voigt notation of the elastic tensor, i.e. (i, j) = i, if i == j and
@@ -206,7 +195,6 @@ class LinearElasticity:
         return tools.C_to_voigt(self.elastic_tensor)
 
     @property
-    @value_or_none
     def compliance_matrix(self):
         """Compliance matrix in Voigt notation."""
         return np.linalg.inv(self.elastic_tensor_voigt)
