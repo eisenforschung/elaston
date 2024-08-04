@@ -285,7 +285,6 @@ class LinearElasticity:
         isotropic: bool = False,
         optimize: bool = True,
         check_unique: bool = False,
-        save_memory: bool = False,
     ):
         """
         Green's function of the equilibrium condition:
@@ -303,8 +302,6 @@ class LinearElasticity:
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
             check_unique (bool): Whether to check the unique positions
-            save_memory (bool): Whether to save memory by using a for loop
-                instead of `numpy.einsum`
 
         Returns:
             ((n,3,3)-array): Green's function values for the given positions
@@ -320,7 +317,6 @@ class LinearElasticity:
             derivative=derivative,
             fourier=fourier,
             check_unique=check_unique,
-            save_memory=save_memory,
         )
 
     get_greens_function.__doc__ += Green.__doc__
@@ -333,7 +329,6 @@ class LinearElasticity:
         isotropic: bool = False,
         optimize: bool = True,
         check_unique: bool = False,
-        save_memory: bool = False,
     ):
         """
         Displacement field around a point defect
@@ -347,8 +342,6 @@ class LinearElasticity:
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
             check_unique (bool): Whether to check the unique positions
-            save_memory (bool): Whether to save memory by using a for loop
-                instead of `numpy.einsum`
 
         Returns:
             ((n,3)-array): Displacement field
@@ -361,7 +354,6 @@ class LinearElasticity:
             isotropic=isotropic,
             optimize=optimize,
             check_unique=check_unique,
-            save_memory=save_memory,
         )
         return -np.einsum("...ijk,...jk->...i", g_tmp, dipole_tensor)
 
@@ -375,7 +367,6 @@ class LinearElasticity:
         isotropic: bool = False,
         optimize: bool = True,
         check_unique: bool = False,
-        save_memory: bool = False,
     ):
         """
         Strain field around a point defect using the Green's function method
@@ -389,8 +380,6 @@ class LinearElasticity:
                 is isotropic, it will automatically be set to isotropic=True
             optimize (bool): cf. `optimize` in `numpy.einsum`
             check_unique (bool): Whether to check the unique positions
-            save_memory (bool): Whether to save memory by using a for loop
-                instead of `numpy.einsum`
 
         Returns:
             ((n,3,3)-array): Strain field
@@ -403,7 +392,6 @@ class LinearElasticity:
             isotropic=isotropic,
             optimize=optimize,
             check_unique=check_unique,
-            save_memory=save_memory,
         )
         v = -np.einsum("...ijkl,...kl->...ij", g_tmp, dipole_tensor)
         return 0.5 * (v + np.einsum("...ij->...ji", v))
