@@ -5,6 +5,7 @@
 import numpy as np
 from elaston.linear_elasticity import tools
 from tqdm.auto import tqdm
+from functools import cached_property
 
 __author__ = "Sam Waseda"
 __copyright__ = (
@@ -58,7 +59,7 @@ class Green:
         )
 
     def get_greens_function(
-        self, r, derivative=0, fourier=False, check_unique=False, save_memory=False
+        self, r, derivative=0, fourier=False, check_unique=False
     ):
         """
         Args:
@@ -68,8 +69,6 @@ class Green:
             check_unique (bool): If `True`, pyiron checks whether there are
                 duplicate values and avoids calculating the Green's function
                 multiple times for the same values
-            save_memory (bool): If `True`, for loop will be used instead of
-                vector calculation, which saves the memory but makes it slow.
 
         Returns:
             (numpy.array): Green's function values. If `derivative=0` or `fourier=True`,
@@ -78,19 +77,9 @@ class Green:
         x = np.array(r)
         if check_unique:
             x, inv = np.unique(x.reshape(-1, 3), axis=0, return_inverse=True)
-        if save_memory:
-            g_tmp = np.array(
-                [
-                    self._get_greens_function(
-                        r=xx, derivative=derivative, fourier=fourier
-                    )
-                    for xx in tqdm(x)
-                ]
-            )
-        else:
-            g_tmp = self._get_greens_function(
-                r=x, derivative=derivative, fourier=fourier
-            )
+        g_tmp = self._get_greens_function(
+            r=x, derivative=derivative, fourier=fourier
+        )
         if check_unique:
             g_tmp = g_tmp[inv].reshape(np.asarray(r).shape + (derivative + 1) * (3,))
         return g_tmp
@@ -120,15 +109,13 @@ class Isotropic(Green):
         self.shear_modulus = shear_modulus
         self.min_dist = min_distance
         self.optimize = optimize
-        self._A = None
         self._B = None
 
-    @property
+    # Rewrite A using cached_property
+    @cached_property
     def A(self):
         """First coefficient of the Green's function. For more, cf. DocString in the class level."""
-        if self._A is None:
-            self._A = (3 - 4 * self.poissons_ratio) * self.B
-        return self._A
+        return (3 - 4 * self.poissons_ratio) * self.B
 
     @property
     def B(self):
