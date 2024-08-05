@@ -65,7 +65,7 @@ dipole_tensor = -job.structure.get_volume()*job['output/generic/pressures'][-1]
 ```
 
 Instead of working with atomistic calculations, the dipole tensor can be calculated by the
-lambda tensor, which is defined as:
+lambda tensor [1], which is defined as:
 
 .. math:
     \\lambda_{ij} = \\frac{1]{V} \\frac{\\partial \\varepsilon_{ij}}{\\partial c}
@@ -75,6 +75,13 @@ and :math:`\\varepsilon` is the strain field. Then the dipole tensor is given by
 
 .. math:
     P_{ij} = VC_{ijkl}\\lambda_{kl}
+
+ref:
+
+[1]
+Nowick, Arthur S.
+Anelastic relaxation in crystalline solids.
+Vol. 1. Elsevier, 2012.
 """
 
 
