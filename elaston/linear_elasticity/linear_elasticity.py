@@ -273,6 +273,17 @@ class LinearElasticity:
         """
         Returns:
             ((3,)-array): xx-, yy-, zz-components of Young's modulus
+
+
+        Here is a list of Young's modulus of a few materials:
+
+        - Al: 70.4
+        - Cu: 170.0
+        - Fe: 211.0
+        - Mo: 442.0
+        - Ni: 248.0
+        - W: 630.0
+
         """
         return 1 / self.compliance_matrix[:3, :3].diagonal()
 

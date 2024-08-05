@@ -5,6 +5,7 @@
 import numpy as np
 from elaston.linear_elasticity import tools
 from tqdm.auto import tqdm
+from functools import cached_property
 
 __author__ = "Sam Waseda"
 __copyright__ = (
@@ -108,15 +109,13 @@ class Isotropic(Green):
         self.shear_modulus = shear_modulus
         self.min_dist = min_distance
         self.optimize = optimize
-        self._A = None
         self._B = None
 
-    @property
+    # Rewrite A using cached_property
+    @cached_property
     def A(self):
         """First coefficient of the Green's function. For more, cf. DocString in the class level."""
-        if self._A is None:
-            self._A = (3 - 4 * self.poissons_ratio) * self.B
-        return self._A
+        return (3 - 4 * self.poissons_ratio) * self.B
 
     @property
     def B(self):
